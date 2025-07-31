@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureAuth - Registration & Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            padding: 20px;
+        }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            height: 600px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            display: flex;
+        }
+        
+        .brand-section {
+            flex: 1;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .brand-section::before {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            top: -100px;
+            right: -100px;
+        }
+        
+        .brand-section::after {
+            content: '';
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            bottom: -80px;
+            left: -80px;
+        }
+        
+        .brand-section h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            z-index: 2;
+        }
+        
+        .brand-section p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            max-width: 350px;
+            z-index: 2;
+        }
+        
+        .form-section {
+            flex: 1.5;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+        
+        .form-container {
+            width: 100%;
+            max-width: 400px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .form-header h2 {
+            font-size: 2rem;
+            color: #1a2a6c;
+            margin-bottom: 10px;
+        }
+        
+        .form-header p {
+            color: #666;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .input-with-icon {
+            position: relative;
+        }
+        
+        .input-with-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #777;
+        }
+        
+        .input-with-icon input,
+        .input-with-icon select {
+            width: 100%;
+            padding: 14px 14px 14px 45px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+            outline: none;
+        }
+        
+        .input-with-icon input:focus,
+        .input-with-icon select:focus {
+            border-color: #1a2a6c;
+            box-shadow: 0 0 10px rgba(26, 42, 108, 0.2);
+        }
+        
+        .password-container {
+            position: relative;
+        }
+        
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #777;
+        }
+        
+        .country-code-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .country-code-select {
+            width: 30%;
+        }
+        
+        .mobile-input {
+            width: 70%;
+        }
+        
+        .strength-meter {
+            height: 5px;
+            background: #eee;
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .strength-meter::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            height: 100%;
+            width: 0;
+            background: #ff4757;
+            transition: width 0.3s;
+        }
+        
+        .strength-meter.weak::before {
+            width: 33%;
+            background: #ff4757;
+        }
+        
+        .strength-meter.medium::before {
+            width: 66%;
+            background: #ffa502;
+        }
+        
+        .strength-meter.strong::before {
+            width: 100%;
+            background: #2ed573;
+        }
+        
+        .strength-text {
+            font-size: 13px;
+            margin-top: 5px;
+            text-align: right;
+        }
+        
+        .strength-text.weak {
+            color: #ff4757;
+        }
+        
+        .strength-text.medium {
+            color: #ffa502;
+        }
+        
+        .strength-text.strong {
+            color: #2ed573;
+        }
+        
+        .error-message {
+            color: #ff4757;
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(to right, #1a2a6c, #b21f1f);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .form-footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+        
+        .form-footer a {
+            color: #1a2a6c;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .form-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .otp-container {
+            display: none;
+            text-align: center;
+            animation: fadeIn 0.5s;
+        }
+        
+        .otp-inputs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .otp-input {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            font-size: 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+        }
+        
+        .otp-input:focus {
+            border-color: #1a2a6c;
+            box-shadow: 0 0 5px rgba(26, 42, 108, 0.3);
+        }
+        
+        .otp-timer {
+            margin-top: 10px;
+            color: #666;
+        }
+        
+        .resend-otp {
+            margin-top: 15px;
+            color: #1a2a6c;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .resend-otp:hover {
+            text-decoration: underline;
+        }
+        
+        .success-message {
+            display: none;
+            text-align: center;
+            color: #2ed573;
+            font-weight: 600;
+            margin-top: 15px;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .login-container {
+            display: none;
+        }
+        
+        /* --- MODIFICATION: Welcome Animation Styles --- */
+        @keyframes slideUpFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes emojiPop {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.4) rotate(-10deg);
+            }
+        }
+        
+        .welcome-container {
+            display: none;
+            text-align: center;
+            animation: slideUpFadeIn 0.8s ease-out;
+        }
+
+        #welcomeMessage .emoji {
+            display: inline-block; /* Needed for transform */
+            animation: emojiPop 1s ease-in-out 0.6s;
+        }
+        /* --- END MODIFICATION --- */
+        
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 50px;
+            animation: emojiPop 0.8s ease-out 0.2s; /* Added animation */
+        }
+        
+        .logout-btn {
+            background: #ff4757;
+            margin-top: 20px;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .brand-section {
+                padding: 30px;
+            }
+            
+            .form-section {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="brand-section">
+            <h1>SecureAuth</h1>
+            <p>Your trusted platform for secure authentication and account management</p>
+        </div>
+        
+        <div class="form-section">
+            <div class="form-container" id="registerForm">
+                <div class="form-header">
+                    <h2>Create Account</h2>
+                    <p>Join our community today</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="fullName" placeholder="Enter your full name">
+                    </div>
+                    <div class="error-message" id="nameError">Name must be at least 3 characters</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" placeholder="Enter your email">
+                    </div>
+                    <div class="error-message" id="emailError">Please enter a valid email address</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="mobile">Mobile Number</label>
+                    <div class="country-code-group">
+                        <div class="input-with-icon country-code-select">
+                            <i class="fas fa-globe"></i>
+                            <select id="countryCode">
+                                <option value="+1">+1 (US)</option>
+                                <option value="+44">+44 (UK)</option>
+                                <option value="+91" selected>+91 (IN)</option>
+                                <option value="+61">+61 (AUS)</option>
+                                <option value="+49">+49 (DE)</option>
+                                <option value="+33">+33 (FR)</option>
+                                <option value="+81">+81 (JP)</option>
+                            </select>
+                        </div>
+                        <div class="input-with-icon mobile-input">
+                            <i class="fas fa-phone"></i>
+                            <input type="tel" id="mobile" placeholder="Mobile number">
+                        </div>
+                    </div>
+                    <div class="error-message" id="mobileError">Please enter a valid mobile number</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-with-icon password-container">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" placeholder="Create a password">
+                        <span class="toggle-password" id="togglePassword">
+                            <i class="fas fa-eye"></i>
+                        </span>
+                    </div>
+                    <div class="strength-meter" id="strengthMeter"></div>
+                    <div class="strength-text" id="strengthText">Password strength</div>
+                    <div class="error-message" id="passwordError">Password must be at least 8 characters with uppercase, lowercase, number and special character</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="confirmPassword" placeholder="Confirm your password">
+                    </div>
+                    <div class="error-message" id="confirmPasswordError">Passwords do not match</div>
+                </div>
+                
+                <button class="btn" id="registerBtn">Register Now</button>
+                
+                <div class="form-footer">
+                    <p>Already have an account? <a href="#" id="loginLink">Sign in</a></p>
+                </div>
+            </div>
+            
+            <div class="otp-container" id="otpContainer">
+                <div class="form-header">
+                    <h2>Verify Mobile</h2>
+                    <p>Enter the 6-digit code sent to your mobile</p>
+                </div>
+                
+                <div class="otp-inputs">
+                    <input type="text" class="otp-input" maxlength="1" data-index="0">
+                    <input type="text" class="otp-input" maxlength="1" data-index="1">
+                    <input type="text" class="otp-input" maxlength="1" data-index="2">
+                    <input type="text" class="otp-input" maxlength="1" data-index="3">
+                    <input type="text" class="otp-input" maxlength="1" data-index="4">
+                    <input type="text" class="otp-input" maxlength="1" data-index="5">
+                </div>
+                
+                <div class="otp-timer">
+                    <span id="timer">02:00</span> remaining
+                </div>
+                
+                <div class="resend-otp" id="resendOtp">
+                    Didn't receive code? Resend OTP
+                </div>
+                
+                <div class="success-message" id="otpSuccess">
+                    <i class="fas fa-check-circle"></i> Mobile number verified successfully!
+                </div>
+                
+                <button class="btn" id="verifyOtpBtn">Verify & Complete Registration</button>
+            </div>
+            
+            <div class="form-container login-container" id="loginForm">
+                <div class="form-header">
+                    <h2>Welcome Back</h2>
+                    <p>Sign in to your account</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="loginEmail">Email Address</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="loginEmail" placeholder="Enter your email">
+                    </div>
+                    <div class="error-message" id="loginEmailError">Please enter your email</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <div class="input-with-icon password-container">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="loginPassword" placeholder="Enter your password">
+                        <span class="toggle-password" id="toggleLoginPassword">
+                            <i class="fas fa-eye"></i>
+                        </span>
+                    </div>
+                    <div class="error-message" id="loginPasswordError">Please enter your password</div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="form-footer" style="text-align: right; margin-top: -10px;">
+                        <a href="#" id="forgotPassword">Forgot Password?</a>
+                    </div>
+                </div>
+                
+                <button class="btn" id="loginBtn">Sign In</button>
+                
+                <div class="form-footer">
+                    <p>Don't have an account? <a href="#" id="registerLink">Sign up</a></p>
+                </div>
+            </div>
+            
+            <div class="welcome-container" id="welcomeContainer">
+                <div class="avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h2 id="welcomeMessage">Welcome!</h2>
+                <p>You have successfully logged in to your SecureAuth account</p>
+                <p>Email: <span id="userEmail">user@example.com</span></p>
+                <p>Mobile: <span id="userMobile">+91 9876543210</span></p>
+                <button class="btn logout-btn" id="logoutBtn">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const registerForm = document.getElementById('registerForm');
+        const loginForm = document.getElementById('loginForm');
+        const welcomeContainer = document.getElementById('welcomeContainer');
+        const otpContainer = document.getElementById('otpContainer');
+        const registerBtn = document.getElementById('registerBtn');
+        const loginBtn = document.getElementById('loginBtn');
+        const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+        const loginLink = document.getElementById('loginLink');
+        const registerLink = document.getElementById('registerLink');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const resendOtp = document.getElementById('resendOtp');
+        const otpInputs = document.querySelectorAll('.otp-input');
+        const timerElement = document.getElementById('timer');
+        
+        // Variables
+        let otp = '';
+        let countdown;
+        let timeLeft = 120; // 2 minutes in seconds
+        let currentUser = null;
+        
+        // Password Strength Check
+        const passwordInput = document.getElementById('password');
+        const strengthMeter = document.getElementById('strengthMeter');
+        const strengthText = document.getElementById('strengthText');
+        
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            let strength = 0;
+            if (password.length >= 8) strength += 25;
+            if (/[A-Z]/.test(password)) strength += 25;
+            if (/[a-z]/.test(password)) strength += 25;
+            if (/[0-9]/.test(password)) strength += 12.5;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 12.5;
+            
+            if (strength > 75) {
+                strengthMeter.className = 'strength-meter strong';
+                strengthText.className = 'strength-text strong';
+                strengthText.textContent = 'Strong password';
+            } else if (strength > 50) {
+                strengthMeter.className = 'strength-meter medium';
+                strengthText.className = 'strength-text medium';
+                strengthText.textContent = 'Medium password';
+            } else if (password.length > 0) {
+                strengthMeter.className = 'strength-meter weak';
+                strengthText.className = 'strength-text weak';
+                strengthText.textContent = 'Weak password';
+            } else {
+                strengthMeter.className = 'strength-meter';
+                strengthText.className = 'strength-text';
+                strengthText.textContent = 'Password strength';
+            }
+        });
+        
+        // Toggle Password Visibility
+        function togglePasswordVisibility(inputId, toggleId) {
+            const passwordInput = document.getElementById(inputId);
+            const toggleIcon = document.getElementById(toggleId);
+            
+            toggleIcon.addEventListener('click', () => {
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    toggleIcon.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                } else {
+                    passwordInput.type = 'password';
+                    toggleIcon.innerHTML = '<i class="fas fa-eye"></i>';
+                }
+            });
+        }
+        
+        togglePasswordVisibility('password', 'togglePassword');
+        togglePasswordVisibility('loginPassword', 'toggleLoginPassword');
+        
+        // Form Validation
+        function validateRegistration() {
+            let isValid = true;
+            const name = document.getElementById('fullName').value;
+            const email = document.getElementById('email').value;
+            const mobile = document.getElementById('mobile').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+            
+            if (name.length < 3) {
+                document.getElementById('nameError').style.display = 'block'; isValid = false;
+            }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                document.getElementById('emailError').style.display = 'block'; isValid = false;
+            }
+            if (!/^\d{10}$/.test(mobile)) {
+                document.getElementById('mobileError').style.display = 'block'; isValid = false;
+            }
+            if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password)) {
+                document.getElementById('passwordError').style.display = 'block'; isValid = false;
+            }
+            if (password !== confirmPassword) {
+                document.getElementById('confirmPasswordError').style.display = 'block'; isValid = false;
+            }
+            return isValid;
+        }
+        
+        function validateLogin() {
+            let isValid = true;
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+
+            if (email.trim() === '') {
+                document.getElementById('loginEmailError').style.display = 'block'; isValid = false;
+            }
+            if (password.trim() === '') {
+                document.getElementById('loginPasswordError').style.display = 'block'; isValid = false;
+            }
+            return isValid;
+        }
+        
+        // OTP Functions
+        function generateOTP() {
+            otp = ''; for (let i = 0; i < 6; i++) { otp += Math.floor(Math.random() * 10); } return otp;
+        }
+        
+        function startTimer() {
+            timeLeft = 120;
+            clearInterval(countdown);
+            countdown = setInterval(() => {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    timerElement.textContent = "00:00"; timerElement.style.color = "#ff4757";
+                }
+            }, 1000);
+        }
+        
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('input', function() { if (this.value.length === 1 && index < otpInputs.length - 1) { otpInputs[index + 1].focus(); } });
+            input.addEventListener('keydown', function(e) { if (e.key === 'Backspace' && this.value === '' && index > 0) { otpInputs[index - 1].focus(); } });
+        });
+        
+        // Event Listeners
+        registerBtn.addEventListener('click', function() {
+            if (validateRegistration()) {
+                const name = document.getElementById('fullName').value;
+                const email = document.getElementById('email').value;
+                const countryCode = document.getElementById('countryCode').value;
+                const mobile = document.getElementById('mobile').value;
+                const password = document.getElementById('password').value;
+                
+                currentUser = { name, email, mobile: `${countryCode} ${mobile}`, password };
+                const generatedOTP = generateOTP();
+                alert(`OTP sent to your mobile: ${generatedOTP}\n\nNote: This is a simulation.`);
+                
+                registerForm.style.display = 'none';
+                otpContainer.style.display = 'block';
+                startTimer();
+                otpInputs.forEach(input => input.value = ''); otpInputs[0].focus();
+            }
+        });
+        
+        verifyOtpBtn.addEventListener('click', function() {
+            let enteredOtp = Array.from(otpInputs).map(i => i.value).join('');
+            if (enteredOtp.length === 6) {
+                document.getElementById('otpSuccess').style.display = 'block';
+                localStorage.setItem('user', JSON.stringify(currentUser));
+                setTimeout(() => {
+                    otpContainer.style.display = 'none';
+                    loginForm.style.display = 'block';
+                    document.getElementById('loginEmail').value = currentUser.email;
+                    alert('Registration successful! You can now login.');
+                }, 1500);
+            } else {
+                alert('Please enter a valid 6-digit OTP');
+            }
+        });
+        
+        resendOtp.addEventListener('click', function() {
+            if (timeLeft <= 0) {
+                alert(`New OTP sent: ${generateOTP()}`);
+                startTimer();
+                otpInputs.forEach(input => input.value = ''); otpInputs[0].focus();
+            } else {
+                alert(`Please wait ${timeLeft} seconds before requesting a new OTP`);
+            }
+        });
+        
+        loginBtn.addEventListener('click', function() {
+            if (validateLogin()) {
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                const storedUser = JSON.parse(localStorage.getItem('user'));
+                
+                if (storedUser && storedUser.email === email && storedUser.password === password) {
+                    // --- MODIFICATION: Enhanced Welcome Message ---
+                    const welcomeMessage = document.getElementById('welcomeMessage');
+                    const currentHour = new Date().getHours();
+                    let greetingText = '';
+                    let emoji = '';
+                    let userName = storedUser.name;
+
+                    if (currentHour < 12) {
+                        greetingText = `Good Morning!`;
+                        emoji = '☕';
+                    } else if (currentHour < 17) {
+                        greetingText = `Good Afternoon! Hope you're having a productive day`;
+                        emoji = '🍛';
+                    } else {
+                        greetingText = `Good Evening! Time to unwind and relax`;
+                        emoji = '✨';
+                    }
+
+                    welcomeMessage.innerHTML = `${greetingText} <span class="emoji">${emoji}</span>, ${userName}!`;
+                    // --- END MODIFICATION ---
+
+                    document.getElementById('userEmail').textContent = storedUser.email;
+                    document.getElementById('userMobile').textContent = storedUser.mobile;
+                    
+                    loginForm.style.display = 'none';
+                    welcomeContainer.style.display = 'block';
+                } else {
+                    alert('Invalid email or password. Please try again.');
+                }
+            }
+        });
+        
+        loginLink.addEventListener('click', function(e) { e.preventDefault(); registerForm.style.display = 'none'; loginForm.style.display = 'block'; });
+        registerLink.addEventListener('click', function(e) { e.preventDefault(); loginForm.style.display = 'none'; registerForm.style.display = 'block'; });
+        
+        logoutBtn.addEventListener('click', function() {
+            welcomeContainer.style.display = 'none';
+            loginForm.style.display = 'block';
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginPassword').value = '';
+        });
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            if (localStorage.getItem('user')) {
+                registerForm.style.display = 'none';
+                loginForm.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
+```
